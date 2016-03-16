@@ -4,7 +4,8 @@
 ![Topology](https://github.com/shreyasgune/OpenStack-Topo-Deployment/blob/master/topology.PNG)
 
 ```
-NET1 : BLUE Subnet = 192.168.1.0/24
+NET1 : BLUE 
+Subnet = 192.168.1.0/24
 Host = BLUE2/CirrOS VM@192.168.1.3
 DHCP = 192.168.1.2 (dnsmsq)
 ```
@@ -68,7 +69,7 @@ After you make changes in press `Esc` key to get out of `insert` mode and then d
 
 ###Check to see if `NetworkManager` is working. 
 `chkconfig --list NetworkManager`
-Then do : 
+Then do : </br>
 `# service NetworkManager stop` </br>
 `# chkconfig NetworkManager off`</br>
 `# service network start`</br>
