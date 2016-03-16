@@ -1,0 +1,22 @@
+Project Name,Meter,Description,Service,Time,Value (Avg),Unit
+admin,network.outgoing.packets.rate,Average rate per sec of outgoing packets on a VM network interface,Nova,2016-03-16T20:14:45.472741,0.0,packet/s
+admin,disk.write.requests.rate,Average rate of write requests,Nova,2016-03-16T20:14:45.472741,0.0123718652053,request/s
+admin,image.download,Image is downloaded,Glance,2016-03-16T20:14:45.472741,13200896.0,B
+admin,disk.read.requests,Number of read requests,Nova,2016-03-16T20:14:45.472741,721.0,request
+admin,network.outgoing.bytes.rate,Average rate per sec of outgoing bytes on a VM network interface,Nova,2016-03-16T20:14:45.472741,0.0,B/s
+admin,disk.write.bytes,Volume of writes,Nova,2016-03-16T20:14:45.472741,450413.714286,B
+admin,cpu_util,Average CPU utilization,Nova,2016-03-16T20:14:45.472741,4.20960954125,%
+admin,disk.read.bytes.rate,Average rate of reads,Nova,2016-03-16T20:14:45.472741,3.72001160124,B/s
+admin,instance,Existence of instance,Nova,2016-03-16T20:14:45.472741,1.0,instance
+admin,network.incoming.bytes.rate,Average rate per sec of incoming bytes on a VM network interface,Nova,2016-03-16T20:14:45.472741,0.0693666027064,B/s
+admin,network.incoming.packets,Number of incoming packets for a VM interface,Nova,2016-03-16T20:14:45.472741,27.7142857143,packet
+admin,disk.write.bytes.rate,Average volume of writes,Nova,2016-03-16T20:14:45.472741,27.3032081986,B/s
+admin,network.outgoing.bytes,Number of outgoing bytes on the network for a VM interface,Nova,2016-03-16T20:14:45.472741,5564.0,B
+admin,disk.read.requests.rate,Average rate of read requests,Nova,2016-03-16T20:14:45.472741,0.00362085643814,request/s
+admin,network.incoming.bytes,Number of incoming bytes on the network for a VM interface,Nova,2016-03-16T20:14:45.472741,2733.14285714,B
+admin,network.outgoing.packets,Number of outgoing packets for a VM interface,Nova,2016-03-16T20:14:45.472741,100.428571429,packet
+admin,disk.write.requests,Number of write requests,Nova,2016-03-16T20:14:45.472741,174.857142857,request
+admin,disk.read.bytes,Volume of reads,Nova,2016-03-16T20:14:45.472741,17620480.0,B
+admin,network.incoming.packets.rate,Average rate per sec of incoming packets on a VM network interface,Nova,2016-03-16T20:14:45.472741,0.00165130898346,packet/s
+services,image.serve,Image is served out,Glance,2016-03-16T20:14:45.472741,13200896.0,B
+services,image.size,Uploaded image size,Glance,2016-03-16T20:14:45.472741,13200896.0,B

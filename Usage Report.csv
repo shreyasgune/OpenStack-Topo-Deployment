@@ -1,0 +1,11 @@
+Usage Report For Period:,2016-03-01,2016-03-16
+Project ID:,9bbdea8da0ed41df9712a07ea82e4315
+Active Instances:,2
+Total VCPU Usage (Hours):,1.19
+Total Active RAM (MB):,1024
+Total Memory Usage (Hours):,609.79
+Total Disk Size (GB):,2
+Total Disk Usage (Hours):,1.19
+Instance Name,VCPUs,RAM (MB),Disk (GB),Usage (Hours),Time since created (Seconds),State
+RED-2,1,512,1,0.71,2570,Active
+BLUE-2,1,512,1,0.48,1715,Active
