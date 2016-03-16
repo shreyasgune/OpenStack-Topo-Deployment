@@ -5,14 +5,14 @@
 
 ```
 NET1 : BLUE Subnet = 192.168.1.0/24
-Host = BLUE1/CirrOS VM@192.168.1.3
+Host = BLUE2/CirrOS VM@192.168.1.3
 DHCP = 192.168.1.2 (dnsmsq)
 ```
 
 ```
 NET2 : RED
 Subnet = 192.168.2.0/24 
-Host = RED1/CirrOS VM@192.168.2.5 
+Host = RED2/CirrOS VM@192.168.2.5 
 DHCP = 192.168.2.2 (dnsmsq)
 ```
 
@@ -69,10 +69,10 @@ After you make changes in press `Esc` key to get out of `insert` mode and then d
 ###Check to see if `NetworkManager` is working. 
 `chkconfig --list NetworkManager`
 Then do : 
-`# service NetworkManager stop`
-`# chkconfig NetworkManager off`
-`# service network start`
-`# chkconfig network on`
+`# service NetworkManager stop` </br>
+`# chkconfig NetworkManager off`</br>
+`# service network start`</br>
+`# chkconfig network on`</br>
 
 Now, you're ready to install OpenStack. There might be some issues along the way with `httpd` and `keystone` and `puppet` but you'll figure them out as you go along. 
 If you don't you can always reach me at `shreyas.enug@gmail.com`
