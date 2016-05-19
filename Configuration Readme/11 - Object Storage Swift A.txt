@@ -1,0 +1,218 @@
+11 - Object Storage - Swift (Part A)
+
+In Controller Node
+
+ # keystone user-create --name swift --pass openstack
+
+ # keystone user-role-add --user swift --tenant service --role admin
+
+ # keystone service-create --name swift --type object-store --description "OpenStack Object Storage"
+
+ # keystone endpoint-create --service-id $(keystone service-list | awk '/ object-store / {print $2}') --publicurl 'http://controller:8080/v1/AUTH_%(tenant_id)s' --internalurl 'http://controller:8080/v1/AUTH_%(tenant_id)s' --adminurl http://controller:8080  --region regionOne
+
+ # apt-get install swift swift-proxy python-swiftclient python-keystoneclient python-keystonemiddleware memcached
+
+ # mkdir /etc/swift
+
+ # curl -o /etc/swift/proxy-server.conf https://raw.githubusercontent.com/openstack/swift/stable/juno/etc/proxy-server.conf-sample
+
+ # nano /etc/swift/proxy-server.conf
+
+ [DEFAULT]
+ ...
+ bind_port = 8080
+ user = swift
+ swift_dir = /etc/swift
+
+ [pipeline:main]
+ pipeline = authtoken cache healthcheck keystoneauth proxy-logging
+ proxy-server
+
+ [app:proxy-server]
+ ...
+ allow_account_management = true
+ account_autocreate = true
+
+ [filter:keystoneauth]
+ use = egg:swift#keystoneauth
+ ...
+ operator_roles = admin,_member_
+
+ [filter:cache]
+ ...
+ memcache_servers = 127.0.0.1:11211
+
+ [filter:authtoken]
+ paste.filter_factory = keystonemiddleware.auth_token:filter_factory
+ ...
+ auth_uri = http://controller:5000/v2.0
+ identity_uri = http://controller:35357
+ admin_tenant_name = service
+ admin_user = swift
+ admin_password = openstack
+ delay_auth_decision = true
+
+ * Comment out any auth_host, auth_port, and auth_protocol
+
+Clone Backup Node (Full Clone) - object1
+
+ Assign network adapter
+
+ Settings > Network
+
+  Adapter 1:
+
+   Attached to: Host-only Adapter
+   Name: Interface 1
+   Adapter Type: Paravirtualized Network
+   Promiscuous Mode: Allow All
+  
+  Adapter 2:
+
+   Attached to: NAT
+   Adapter Type: Paravirtualized Network
+
+ Assign 2 additional storage
+
+ Settings > Storage > Add Hard disk
+  
+  Name storage
+
+  Assign storage size
+
+In Object1 Node
+
+ Configuring Hostname
+
+  # nano /etc/hostname
+
+  object1
+
+ Configuring Network Interfaces
+
+  # nano /etc/network/interfaces
+
+  auto eth0
+  iface eth0 inet static
+   address 10.10.10.14
+   netmask 255.255.255.0
+
+  auto eth1
+  iface eth1 inet dhcp
+ 
+  # reboot
+
+ # apt-get install xfsprogs rsync
+
+ # mkfs.xfs /dev/sdb
+
+ # mkfs.xfs /dev/sdc
+
+ # mkdir -p /srv/node/sdb
+
+ # mkdir -p /srv/node/sdc
+
+ # nano /etc/fstab
+
+ /dev/sdb1 /srv/node/sdb1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 2
+ /dev/sdc1 /srv/node/sdc1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 2
+
+ # mount /srv/node/sdb
+ # mount /srv/node/sdc
+
+ # nano /etc/rsyncd.conf
+
+ uid = swift
+ gid = swift
+ log file = /var/log/rsyncd.log
+ pid file = /var/run/rsyncd.pid
+ address = 10.10.10.14
+
+ [account]
+ max connections = 2
+ path = /srv/node/
+ read only = false
+ lock file = /var/lock/account.lock
+
+ [container]
+ max connections = 2
+ path = /srv/node/
+ read only = false
+ lock file = /var/lock/container.lock
+
+ [object]
+ max connections = 2
+ path = /srv/node/
+ read only = false
+ lock file = /var/lock/object.lock
+
+ # nano /etc/default/rsync
+
+ RSYNC_ENABLE=true
+
+ # service rsync start
+
+ # apt-get install swift swift-account swift-container swift-object
+
+ # # curl -o /etc/swift/account-server.conf https://raw.githubusercontent.com/openstack/swift/stable/juno/etc/account-server.conf-sample
+
+ # curl -o /etc/swift/container-server.conf https://raw.githubusercontent.com/openstack/swift/stable/juno/etc/container-server.conf-sample
+
+ # curl -o /etc/swift/object-server.conf https://raw.githubusercontent.com/openstack/swift/stable/juno/etc/object-server.conf-sample
+
+ # nano /etc/swift/account-server.conf
+ 
+ [DEFAULT]
+ ...
+ bind_ip = 10.10.10.14
+ bind_port = 6002
+ user = swift
+ swift_dir = /etc/swift
+ devices = /srv/node
+ 
+ [pipeline:main]
+ pipeline = healthcheck recon account-server
+ 
+ [filter:recon]
+ ...
+ recon_cache_path = /var/cache/swift
+
+ # nano /etc/swift/container-server.conf
+
+ [DEFAULT]
+ ...
+ bind_ip = 10.10.10.14
+ bind_port = 6001
+ user = swift
+ swift_dir = /etc/swift
+ devices = /srv/node
+ 
+ [pipeline:main]
+ pipeline = healthcheck recon container-server
+ 
+ [filter:recon]
+ ...
+ recon_cache_path = /var/cache/swift
+
+ # nano /etc/swift/object-server.conf
+
+ [DEFAULT]
+ ...
+ bind_ip = 10.10.10.14
+ bind_port = 6000
+ user = swift
+ swift_dir = /etc/swift
+ devices = /srv/node
+ 
+ [pipeline:main]
+ pipeline = healthcheck recon object-server
+ 
+ [filter:recon]
+ ...
+ recon_cache_path = /var/cache/swift
+
+ # chown -R swift:swift /srv/node
+
+ # mkdir -p /var/cache/swift
+
+ # chown -R swift:swift /var/cache/swift

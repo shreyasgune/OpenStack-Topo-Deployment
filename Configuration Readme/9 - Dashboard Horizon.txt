@@ -1,0 +1,65 @@
+9 - Dashboard (Horizon)
+
+In Controller Node
+
+ # apt-get install openstack-dashboard apache2 libapache2-mod-wsgi memcached python-memcache
+
+ # nano /etc/openstack-dashboard/local_settings.py
+
+ OPENSTACK_HOST = "controller"
+
+ ALLOWED_HOSTS = ['*']
+
+ CACHES = {
+  'default': {
+   'BACKEND': 'django.core.cache.backends.memcached.
+ MemcachedCache',
+   'LOCATION': '127.0.0.1:11211',
+  }
+ }
+
+ # service apache2 restart
+
+ # service memcached restart
+
+ # nano /etc/apache2/conf-available/fqdn.conf
+
+ ServerName controller
+
+ # a2enconf fqdn
+
+ # service apache2 reload
+
+ # service apache2 restart
+
+Access the dashboard from windows
+
+ Run Notepad as administrator
+
+ Open file > Windows/System32/drivers/etc/hosts
+
+  10.10.10.10 controller
+
+ Open link in Browser
+
+  http://controller/horizon
+
+ Login
+ 
+  User Name: admin
+  Password: openstack
+
+Enabling Rabbitmq Dashboard (In Controller Node)
+
+ # rabbitmq-plugins enable rabbitmq_management
+
+ # service rabbitmq-server restart
+
+ Open link in Browser
+
+  http://controller:15672
+
+ Login
+ 
+  User Name: guest
+  Password: openstack

@@ -1,0 +1,134 @@
+6- Neutron (Part B)
+
+In Network Node
+
+	# nano /etc/sysctl.conf
+
+	net.ipv4.ip_forward=1
+	net.ipv4.conf.all.rp_filter=0
+	net.ipv4.conf.default.rp_filter=0
+
+	# sysctl -p
+
+	# apt-get install neutron-plugin-ml2 neutron-plugin-openvswitch-agent neutron-l3-agent neutron-dhcp-agent
+
+	# nano /etc/neutron/neutron.conf
+
+	[DEFAULT]
+	...
+	rpc_backend = rabbit
+	rabbit_host = controller
+	rabbit_password = openstack
+	...
+	auth_strategy = keystone
+	...
+	verbose = True
+	...
+	core_plugin = ml2
+	service_plugins = router
+	allow_overlapping_ips = True
+
+	[keystone_authtoken]
+	...
+	auth_uri = http://controller:5000/v2.0
+	identity_uri = http://controller:35357
+	admin_tenant_name = service
+	admin_user = neutron
+	admin_password = openstack
+
+	* In the [database] section, comment out any connection options
+	* Comment out any auth_host, auth_port, and auth_protocol
+	
+	# nano /etc/neutron/plugins/ml2/ml2_conf.ini
+
+	[ml2]
+	...
+	type_drivers = flat,gre
+	tenant_network_types = gre
+	mechanism_drivers = openvswitch
+
+	[ml2_type_flat]
+	...
+	flat_networks = external
+
+	[ml2_type_gre]
+	...
+	tunnel_id_ranges = 1:1000
+
+	[securitygroup]
+	...
+	enable_security_group = True
+	enable_ipset = True
+	firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+	[ovs]
+	...
+	local_ip = 10.20.20.12
+	enable_tunneling = True
+	bridge_mappings = external:br-ex
+
+	[agent]
+	...
+	tunnel_types = gre
+
+	# nano /etc/neutron/l3_agent.ini
+
+	[DEFAULT]
+	...
+	interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+	use_namespaces = True
+	external_network_bridge = br-ex
+	router_delete_namespaces = True
+	...
+	verbose = True
+
+	# nano /etc/neutron/dhcp_agent.ini
+
+	[DEFAULT]
+	...
+	interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+	dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+	use_namespaces = True
+	dhcp_delete_namespaces = True
+	...
+	verbose = True
+
+	# nano /etc/neutron/metadata_agent.ini
+
+	[DEFAULT]
+	...
+	auth_url = http://controller:5000/v2.0
+	auth_region = regionOne
+	admin_tenant_name = service
+	admin_user = neutron
+	admin_password = openstack
+	...
+	nova_metadata_ip = controller
+	...
+	metadata_proxy_shared_secret = openstack
+	...
+	verbose = True
+
+In Controller Node
+
+	# nano /etc/nova/nova.conf
+
+	[neutron]
+	...
+	service_metadata_proxy = True
+	metadata_proxy_shared_secret = openstack
+
+	# service nova-api restart
+
+In Network Node
+
+	# service openvswitch-switch restart
+
+	# ovs-vsctl add-br br-ex
+
+	# ovs-vsctl add-port br-ex eth2
+
+	# service neutron-plugin-openvswitch-agent restart
+	# service neutron-l3-agent restart
+	# service neutron-dhcp-agent restart
+	# service neutron-metadata-agent restart		

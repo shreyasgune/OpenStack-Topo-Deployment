@@ -1,0 +1,26 @@
+18 - Launch An Instance 
+https://www.youtube.com/watch?v=1_7tOAoLv4E
+
+In Controller Node
+
+ # source admin-openrc.sh
+ 
+ # ssh-keygen
+
+ # nova keypair-add --pub-key ~/.ssh/id_rsa.pub demo-key
+
+ # nova keypair-list
+
+ # nova flavor-list
+
+ # nova image-list
+
+ # neutron net-list
+
+ # nova secgroup-list
+
+ # nova boot --flavor m1.tiny --image cirros --nic net-id=DEMO_NET_ID --security-group default --key-name demo-key cirros
+
+ # nova list
+
+ # nova get-vnc-console cirros novnc

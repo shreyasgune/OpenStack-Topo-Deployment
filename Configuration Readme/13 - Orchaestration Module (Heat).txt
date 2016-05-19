@@ -1,0 +1,113 @@
+13 - Orchaestration Module (Heat)
+In Controller Node
+
+ # mysql -u root -p
+
+ > CREATE DATABASE heat;
+
+ > GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'localhost' IDENTIFIED BY 'openstack';
+
+ > GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'%' IDENTIFIED BY 'openstack';
+ 
+ > exit
+
+ # source admin-openrc.sh
+
+ # keystone user-create --name heat --pass openstack
+
+ # keystone user-role-add --user heat --tenant service --role admin
+
+ # keystone role-create --name heat_stack_owner
+
+ # keystone user-role-add --user demo --tenant demo --role heat_stack_owner
+
+ # keystone role-create --name heat_stack_user
+
+ # keystone service-create --name heat --type orchestration --description "Orchestration"
+
+ # keystone service-create --name heat-cfn --type cloudformation --description "Orchestration"
+
+ # keystone endpoint-create --service-id $(keystone service-list | awk '/ orchestration / {print $2}') --publicurl http://controller:8004/v1/%\(tenant_id\)s --internalurl http://controller:8004/v1/%\(tenant_id\)s --adminurl http://controller:8004/v1/%\(tenant_id\)s --region regionOne 
+
+ # keystone endpoint-create --service-id $(keystone service-list | awk '/ cloudformation / {print $2}') --publicurl http://controller:8000/v1 --internalurl http://controller:8000/v1 --adminurl http://controller:8000/v1 --region regionOne
+
+ # apt-get install heat-api heat-api-cfn heat-engine python-heatclient
+
+ # nano /etc/heat/heat.conf
+
+ [database]
+ ...
+ connection = mysql://heat:openstack@controller/heat
+
+ [DEFAULT]
+ ...
+ rpc_backend = rabbit
+ rabbit_host = controller
+ rabbit_password = openstack
+ ...
+ heat_metadata_server_url = http://controller:8000
+ heat_waitcondition_server_url = http://controller:8000/v1/waitcondition
+ ...
+ verbose = True
+
+ [ec2authtoken]
+ ...
+ auth_uri = http://controller:5000/v2.0
+
+ [keystone_authtoken]
+ ...
+ auth_uri = http://controller:5000/v2.0
+ identity_uri = http://controller:35357
+ admin_tenant_name = service
+ admin_user = heat
+ admin_password = openstack
+
+ * Comment out any auth_host, auth_port, and auth_protocol
+ 
+ # heat-manage db_sync
+
+ # rm -f /var/lib/heat/heat.sqlite
+
+ # service heat-api restart
+
+ # service heat-api-cfn restart
+
+ # service heat-engine restart
+
+ # touch test-stack.yml
+
+ # nano test-stack.yml
+
+ heat_template_version: 2014-10-16
+ description: A simple server.
+ parameters:
+ ImageID:
+ type: string
+ description: Image use to boot a server
+ NetID:
+ type: string
+ description: Network ID for the server
+ resources:
+ ImageID:
+ type: string
+ description: Image use to boot a server
+ NetID:
+ type: string
+ description: Network ID for the server
+ server:
+ type: OS::Nova::Server
+ properties:
+ image: { get_param: ImageID }
+ flavor: m1.tiny
+ networks:
+ - network: { get_param: NetID }
+ outputs:
+ private_ip:
+ description: IP address of the server in the private network
+ value: { get_attr: [ server, first_address ] }
+
+ # NET_ID=$(nova net-list | awk '/ demo-net / { print $2 }')
+
+ # heat stack-create -f test-stack.yml -P "ImageID=Cirros;NetID=$NET_ID" testStack
+
+ # heat stack-list

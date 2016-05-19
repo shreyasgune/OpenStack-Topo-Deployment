@@ -1,0 +1,49 @@
+8 - Neutron (Part D)
+
+Verifying Neutron Services (In Controller Node)
+
+ # nano /etc/rabbitmq/rabbitmq.config
+
+ [{rabbit, [{loopback_users, []}]}]
+
+ # service rabbitmq-server restart
+ 
+ # source admin-openrc.sh
+
+ # neutron ext-list
+
+ # neutron agent-list
+
+Creating Initial Networks (In Controller Node)
+
+ External Network
+
+ # source admin-openrc.sh
+
+ # neutron net-create ext-net --router:external True --provider:physical_network external --provider:network_type flat
+
+ Subnet on External Network
+
+ #neutron subnet-create ext-net --name ext-subnet --allocation-pool start=192.168.100.101,end=192.168.100.200 --disable-dhcp --gateway 192.168.100.1 192.168.100.0/24
+
+ Tenant Network
+
+ # source demo-openrc.sh 
+
+ # neutron net-create demo-net
+
+ Subnet on Tenant Network
+
+ # neutron subnet-create demo-net --name demo-subnet --gateway 192.162.1.1 192.162.1.0/24
+
+ Router
+
+ # neutron router-create demo-router
+
+ # neutron router-interface-add demo-router demo-subnet
+
+ # neutron router-gateway-set demo-router ext-net
+
+ Verify Connectivity
+
+ # ping -c 192.168.100.101

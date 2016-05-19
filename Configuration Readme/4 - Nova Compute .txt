@@ -1,0 +1,132 @@
+4 - Nova Compute
+
+In Controller Node
+
+	# mysql -u root -p
+
+	> CREATE DATABASE nova;
+
+	> GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'openstack';
+
+	> GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'openstack';
+	
+	> exit
+
+	# source admin-openrc.sh
+
+	# keystone user-create --name nova --pass openstack
+
+	# keystone user-role-add --user nova --tenant service --role admin
+
+	# keystone service-create --name nova --type compute --description "OpenStack Compute"
+
+	# keystone endpoint-create --service-id $(keystone service-list | awk '/ compute / {print $2}') --publicurl http://controller:8774/v2/%\(tenant_id\)s --internalurl http://controller:8774/v2/%\(tenant_id\)s --adminurl http://controller:8774/v2/%\(tenant_id\)s --region regionOne
+
+	# apt-get install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler python-novaclient
+
+	# nano /etc/nova/nova.conf
+
+	[database]
+	...
+	connection = mysql://nova:openstack@controller/nova
+
+	[DEFAULT]
+	...
+	rpc_backend = rabbit
+	rabbit_host = controller
+	rabbit_password = openstack
+	...
+	auth_strategy = keystone
+	...
+	my_ip = 10.0.0.10
+	...
+	vncserver_listen = 10.0.0.10
+	vncserver_proxyclient_address = 10.0.0.10
+
+	[keystone_authtoken]
+	...
+	auth_uri = http://controller:5000/v2.0
+	identity_uri = http://controller:35357
+	admin_tenant_name = service
+	admin_user = nova
+	admin_password = openstack
+
+	* Comment out any auth_host, auth_port, and auth_protocol
+
+	[glance]
+	...
+	host = controller
+
+	[DEFAULT]
+	...
+	verbose = True
+
+	# nova-manage db sync
+
+	# rm -f /var/lib/nova/nova.sqlite
+
+	# service nova-api restart
+	# service nova-cert restart
+	# service nova-consoleauth restart
+	# sevice nova-scheduler restart
+	# service nova-conductor restart
+	# service nova-novncproxy restart
+
+In Compute Node
+
+	# apt-get install nova-compute sysfsutils
+
+	# nano /etc/nova/nova.conf
+
+	[DEFAULT]
+	...
+	rpc_backend = rabbit
+	rabbit_host = controller
+	rabbit_password = openstack
+	...
+	auth_strategy = keystone
+	...
+	verbose = True
+	...
+	my_ip = 10.10.10.11
+	...
+	vnc_enabled = True
+	vncserver_listen = 0.0.0.0
+	vncserver_proxyclient_address = 10.10.10.11
+	novncproxy_base_url = http://controller:6080/vnc_auto.html
+
+	[keystone_authtoken]
+	...
+	auth_uri = http://controller:5000/v2.0
+	identity_uri = http://controller:35357
+	admin_tenant_name = service
+	admin_user = nova
+	admin_password = openstack
+
+	* Comment out any auth_host, auth_port, and auth_protocol
+
+	[glance]
+	...
+	host = controller
+
+	# egrep -c '(vmx|svm)' /proc/cpuinfo
+
+	* If this command returns a value of zero, your compute node does not support hard-ware acceleration and you must configure libvirt to use QEMU instead of KVM
+
+	# nano /etc/nova/nova-compute.conf
+
+	[libvirt]
+	...
+	virt_type = qemu
+
+	# service nova-compute restart
+
+	# rm -f /var/lib/nova/nova.sqlite
+
+In Controller Node
+
+	# source admin-openrc.sh
+
+	# nova service-list
+
+	# nova image-list

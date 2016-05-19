@@ -1,0 +1,209 @@
+OpenStack - Juno (Install and Config)
+
+1- Basic Setup
+Creating network interfaces ( 3 interfaces )
+
+ File > Preferences > Network > Host-only Networks
+
+ Interface 1 (Management Network)
+  IPv4 Address: 10.10.10.1
+  Network Mask: 255.255.255.255.0
+
+ Interface 2 (Tunnel Network)
+  IPv4 Address: 10.20.20.1
+  Network Mask: 255.255.255.255.0
+
+ Interface 3 (External Network)
+  IPv4 Address: 192.168.100.1
+  Network Mask: 255.255.255.255.0
+
+Create a vm - controller
+ 
+ Install Ubuntu Server 14.10
+
+ Assign network adapter
+
+ Settings > Network
+
+  Adapter 1:
+
+   Attached to: Host-only Adapter
+   Name: Interface 1
+   Adapter Type: Paravirtualized Network
+   Promiscuous Mode: Allow All
+  
+  Adapter 2:
+
+   Attached to: NAT
+   Adapter Type: Paravirtualized Network
+
+Always use root user
+
+ $ sudo su
+
+In Controller Node
+
+ Configuring Hostname
+
+  # nano /etc/hostname
+
+  controller
+
+ Configuring Network Interfaces
+
+  # nano /etc/network/interfaces
+
+  auto eth0
+  iface eth0 inet static
+   address 10.10.10.10
+   netmask 255.255.255.0
+
+  auto eth1
+  iface eth1 inet dhcp
+
+ Configuring Name resolution
+
+  # nano /etc/hosts   
+
+  10.10.10.10 controller
+  10.10.10.11 compute
+  10.10.10.12 network
+  10.10.10.13 block
+  10.10.10.14 object1
+  10.10.10.15 object2
+  #127.0.0.1 localhost
+
+  # reboot
+
+ Update Ubuntu Server
+
+  # sudo apt-get update
+
+Clone Controller Node (Full Clone)
+ 
+ -network
+ -compute
+
+ Assign network adapter
+
+  To Network Node
+
+   Adapter 1:
+ 
+    Attached to: Host-only Adapter
+    Name: Interface 1
+    Adapter Type: Paravirtualized Network
+    Promiscuous Mode: Allow All
+
+   Adapter 2:
+ 
+    Attached to: Host-only Adapter
+    Name: Interface 2
+    Adapter Type: Paravirtualized Network
+    Promiscuous Mode: Allow All
+
+   Adapter 3:
+ 
+    Attached to: Host-only Adapter
+    Name: Interface 3
+    Adapter Type: Paravirtualized Network
+    Promiscuous Mode: Allow All
+  
+   Adapter 4:
+ 
+    Attached to: NAT
+    Adapter Type: Paravirtualized Network
+
+  To Compute Node
+
+   Adapter 1:
+ 
+    Attached to: Host-only Adapter
+    Name: Interface 1
+    Adapter Type: Paravirtualized Network
+    Promiscuous Mode: Allow All
+
+   Adapter 2:
+ 
+    Attached to: Host-only Adapter
+    Name: Interface 2
+    Adapter Type: Paravirtualized Network
+    Promiscuous Mode: Allow All
+  
+   Adapter 3:
+ 
+    Attached to: NAT
+    Adapter Type: Paravirtualized Network
+
+In Network Node
+
+ Configuring Hostname
+
+  # nano /etc/hostname
+
+  network
+
+ Configuring Network Interfaces
+
+  # nano /etc/network/interfaces
+
+  auto eth0
+  iface eth0 inet static
+   address 10.10.10.12
+   netmask 255.255.255.0
+
+  auto eth1
+  iface eth1 inet static
+   address 10.20.20.12
+   netmask 255.255.255.0
+
+  auto eth2
+  iface eth2 inet manual
+   up ip link set dev $IFACE up
+   down ip link set dev $IFACE down
+
+  auto eth3
+  iface eth3 inet dhcp
+
+  # reboot
+ 
+  # ping controller
+  # ping compute 
+  # ping google.com 
+
+In Compute Node
+
+ Configuring Hostname
+
+  # nano /etc/hostname
+
+  compute
+
+ Configuring Network Interfaces
+
+  # nano /etc/network/interfaces
+
+  auto eth0
+  iface eth0 inet static
+   address 10.10.10.11
+   netmask 255.255.255.0
+
+  auto eth1
+  iface eth1 inet static
+   address 10.20.20.11
+   netmask 255.255.255.0
+
+  auto eth2
+  iface eth2 inet dhcp
+
+  # reboot
+
+  # ping controller
+  # ping network
+  # ping google.com
+
+In Controller Node
+
+  # ping network
+  # ping compute
+  # ping google.com

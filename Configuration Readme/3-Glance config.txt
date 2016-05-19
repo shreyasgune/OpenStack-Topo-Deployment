@@ -1,0 +1,101 @@
+3 - Glance
+In Controller Node
+
+	# mysql -u root -p
+
+	> CREATE DATABASE glance;
+
+	> GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'openstack';
+
+	> GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'openstack';
+	
+	> exit
+
+	# source admin-openrc.sh
+
+	# keystone user-create --name glance --pass openstack
+
+	# keystone user-role-add --user glance --tenant service --role admin
+
+	# keystone service-create --name glance --type image --description "OpenStack Image Service"
+
+	# keystone endpoint-create --service-id $(keystone service-list | awk '/ image / {print $2}') --publicurl http://controller:9292 --internalurl http://controller:9292 --adminurl http://controller:9292 --region regionOne
+
+	# apt-get install glance python-glanceclient
+
+	# nano /etc/glance/glance-api.conf
+
+	[database]
+	...
+	connection = mysql://glance:openstack@controller/glance
+
+	[keystone_authtoken]
+	...
+	auth_uri = http://controller:5000/v2.0
+	identity_uri = http://controller:35357
+	admin_tenant_name = service
+	admin_user = glance
+	admin_password = openstack
+
+	* Comment out any auth_host, auth_port, and auth_protocol
+
+	[paste_deploy]
+	...
+	flavor = keystone
+
+	[glance_store]
+	...
+	default_store = file
+	filesystem_store_datadir = /var/lib/glance/images/
+
+	[DEFAULT]
+	...
+	notification_driver = noop
+	...
+	verbose = True
+
+	# nano /etc/glance/glance-registry.conf
+
+	[database]
+	...
+	connection = mysql://glance:openstack@controller/glance
+
+	[keystone_authtoken]
+	...
+	auth_uri = http://controller:5000/v2.0
+	identity_uri = http://controller:35357
+	admin_tenant_name = service
+	admin_user = glance
+	admin_password = openstack
+	
+	* Comment out any auth_host, auth_port, and auth_protocol
+
+	[paste_deploy]
+	...
+	flavor = keystone
+
+	[DEFAULT]
+	...
+	notification_driver = noop
+	...
+	verbose = True
+	
+	# glance-manage db_sync
+
+	# rm -f /var/lib/glance/glance.sqlite
+
+	# service glance-registry restart
+
+	# service glance-api restart	
+
+	# mkdir /tmp/images
+	
+	# cd /tmp/images
+
+	# wget http://cdn.download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+
+	# source admin-openrc.sh
+
+	# glance image-create --name "cirros" --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2 --container-format bare --is-public True --progress
+
+	# glance image-list

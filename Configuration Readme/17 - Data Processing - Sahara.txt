@@ -1,0 +1,76 @@
+17 -  Data Processing - Sahara 
+
+In Controller Node
+
+ # apt-get install python-pip
+
+ # apt-get install python-setuptools python-virtualenv python-dev
+
+ # virtualenv sahara-venv
+
+ # sahara-venv/bin/pip install sahara
+
+ # mkdir /etc/sahara
+
+ # cp sahara-venv/share/sahara/sahara.conf.sample-basic /etc/sahara/sahara.conf
+
+ # nano /etc/sahara/sahara.conf
+ ...
+ connection = mysql://sahara:openstack@controller/sahara
+ ...
+ auth_uri = http://controller:5000/v2.0
+ ...
+ identity_uri = http://controller:35357
+ ...
+ admin_user = admin
+ admin_password = openstack
+ admin_tenant_name = service
+ 
+ [DEFAULT]
+ ...
+ use_neutron = true
+ ...
+ verbose = true
+ ...
+ debug = true
+
+ # nano /etc/mysql/my.cnf
+ 
+ [mysqld]
+ max_allowed_packet = 256M
+
+ # service mysql restart
+
+ # sahara-venv/bin/pip install mysql-python
+
+ # apt-get install python-pip libmysqlclient-dev python-dev
+
+ # mysql -u root -p
+
+ > CREATE DATABASE sahara;
+
+ > GRANT ALL PRIVILEGES ON sahara.* TO 'sahara'@'localhost' IDENTIFIED BY 'openstack';
+
+ > GRANT ALL PRIVILEGES ON sahara.* TO 'sahara'@'%' IDENTIFIED BY 'openstack';
+ 
+ > exit
+
+ # sahara-venv/bin/sahara-db-manage --config-file /etc/sahara/sahara.conf upgrade head
+
+ # keystone service-create --name sahara --type data_processing --description "Data processing service"
+ $ keystone endpoint-create --service-id $(keystone service-list | awk '/ sahara / {print $2}') --publicurl http://controller:8386/v1.1/%\(tenant_id\)s --internalurl http://controller:8386/v1.1/%\(tenant_id\)s --adminurl http://controller:8386/v1.1/%\(tenant_id\)s --region regionOne
+
+ # pip install sahara-dashboard
+ 
+ # nano /usr/share/openstack-dashboard/openstack_dashboard/settings.py
+
+ ...
+ 'dashboards' : ('project', 'admin', 'router', 'sahara',),
+ ...
+ INSTALLED_APPS = [
+ 'saharadashboard',
+ ]
+
+ # service apache2 restart 
+
+ # sahara-venv/bin/sahara-all --config-file /etc/sahara/sahara.conf
