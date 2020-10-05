@@ -26,7 +26,7 @@ DHCP = 192.168.2.2 (dnsmsq)
 There isn't much code to look at. This is more of a sys-config guide.
 If you have trouble understanding it, email me at : [shreyas.enug@gmail.com](shreyas.enug@gmail.com)
 
-##Theory Background
+## Theory Background
 
 [OpenNetwork](https://www.opennetworking.org/about/onf-overview)
 [OpenStack] (https://opensource.com/resources/what-is-openstack)
@@ -68,12 +68,15 @@ so, go ahead and add this little line as well : `NM_CONTROLLED=no` to the above 
 After you make changes in press `Esc` key to get out of `insert` mode and then do this `:wq!` to commit the changes.
 
 ### Check to see if `NetworkManager` is working. 
-`chkconfig --list NetworkManager`
-Then do : </br>
-`# service NetworkManager stop` </br>
-`# chkconfig NetworkManager off`</br>
-`# service network start`</br>
-`# chkconfig network on`</br>
+```
+chkconfig --list NetworkManager`
+
+then try ..
+# service NetworkManager stop
+# chkconfig NetworkManager off
+# service network start
+# chkconfig network on
+```
 
 Now, you're ready to install OpenStack. There might be some issues along the way with `httpd` and `keystone` and `puppet` but you'll figure them out as you go along. 
 If you don't you can always reach me at `shreyas.enug@gmail.com`
