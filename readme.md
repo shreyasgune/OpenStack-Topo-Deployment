@@ -1,6 +1,6 @@
-#OpenStack deployment for Basic Topology
+# OpenStack deployment for Basic Topology
 
-##Topology
+## Topology
 ![Topology](https://github.com/shreyasgune/OpenStack-Topo-Deployment/blob/master/topology.PNG)
 
 ```
@@ -40,7 +40,7 @@ Well, to virtualize networking, set up dynamic routers and make topologies out o
 First things first : Get OpenStack. What falvour you get it as is going to be up to you. [http://docs.openstack.org/developer/devstack/](http://docs.openstack.org/developer/devstack/)
 Don't install it, just GET it.
 
-###In case you are running CentOS.
+### In case you are running CentOS.
 When you VmWare into your VM, probably, the internet is not going to work. Make sure that your Network Settings for the VM is on `NAT`.
 When you boot into the machine, run `ifconfig` and see the interfaces that are listed. You are probably not going to see `eth0` because `CentOS` names things differently.
 Go to `/etc/sysconfig/network-scripts` and `ls` to find `ifcfg-<device>`. 
@@ -67,7 +67,7 @@ Also, this is a nice place to mention : **OpenStack does NOT work with NetworkMa
 so, go ahead and add this little line as well : `NM_CONTROLLED=no` to the above edits.
 After you make changes in press `Esc` key to get out of `insert` mode and then do this `:wq!` to commit the changes.
 
-###Check to see if `NetworkManager` is working. 
+### Check to see if `NetworkManager` is working. 
 `chkconfig --list NetworkManager`
 Then do : </br>
 `# service NetworkManager stop` </br>
@@ -82,7 +82,7 @@ After successfully installing OpenStack, check if it's running : `# openstack-st
 The login and password will be at : `# Vim keystonerc_admin`. 
 The `Neutron-dashboard` will be running on : `yourIP:5000/dashboard` 
 
-##Results
+## Results
 
 ![Overview](https://github.com/shreyasgune/OpenStack-Topo-Deployment/blob/master/overview.PNG)
 ![Networks](https://github.com/shreyasgune/OpenStack-Topo-Deployment/blob/master/networks.PNG)
